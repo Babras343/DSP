@@ -6,6 +6,7 @@ import wave
 import json 
 import csv
 
+global_data = {}
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -27,31 +28,21 @@ print("Your Computer IP Address is: " + IPAddr)
 print(
     "* Enter {0}:5000 in the app.\n* Press the 'Set IP Address' button.\n* Select the sensors to stream.\n* Update the 'update interval' by entering a value in ms.".format(IPAddr))
 
+async def save_global_data(global_data):
+    f = open("sensors.csv", "a")
+    f.write(global_data+ "\n")
 
 async def echo(websocket, path):
+    global global_data
+
     async for message in websocket:
-        if path == '/accelerometer':
+        if path == '/accelerometer'or path == '/gyroscope':
             data = await websocket.recv()
             f = open("acceleration.csv", "a")
             f.write(data+"\n")
 
-            # Parse the received data
-            parsed_data = json.loads(data)
-
-            # Format the data for CSV
-            formatted_data = {
-                "SensorName": parsed_data.get("SensorName", ""),
-                "Timestamp": parsed_data.get("Timestamp", 0),
-                "x": parsed_data.get("x", 0.0),
-                "y": parsed_data.get("y", 0.0),
-                "z": parsed_data.get("z", 0.0),
-            }
-            print(formatted_data)
-
-        if path == '/gyroscope':
-            data = await websocket.recv()
-            f = open("gyroscope.csv", "a")
-            f.write(data+"\n")
+            global_data = data  # Assign data to global variable
+            print(f"Global data updated: {global_data}")
 
             # Parse the received data
             parsed_data = json.loads(data)
@@ -64,47 +55,21 @@ async def echo(websocket, path):
                 "y": parsed_data.get("y", 0.0),
                 "z": parsed_data.get("z", 0.0),
             }
-            print(formatted_data)
+            #print(formatted_data)
+            await save_global_data(global_data)  # Save data to global.csv asynchronously
 
-        
-        if path == '/orientation':
-            data = await websocket.recv()
-            print(data)
-            f = open("orientation.txt", "a")
-            f.write(data+"\n")
 
-        if path == '/stepcounter':
-            data = await websocket.recv()
-            print(data)
-            f = open("stepcounter.txt", "a")
-            f.write(data+"\n")
 
-        if path == '/lightsensor':
-            print("connected")
-            data = await websocket.recv()
-            print(data)
-            f = open("lightsensor.txt", "a")
-            f.write(data+"\n")
 
-        if path == '/proximity':
-            data = await websocket.recv()
-            print(data)
-            f = open("proximity.txt", "a")
-            f.write(data+"\n")
-
-        if path == '/geolocation':
-            data = await websocket.recv()
-            print(data)
-            f = open("geolocation.txt", "a")
-            f.write(data+"\n")
 
 # Contribution by Evan Johnston
-async def activate_SSS():
+async def run_SSS():
     async with websockets.serve(echo, '0.0.0.0', 5000, max_size=1_000_000_000):
         await asyncio.Future()
     
 
-asyncio.run(activate_SSS())
 
 
+asyncio.run(run_SSS())
+asyncio.run(save_global_data(global_data))
 
