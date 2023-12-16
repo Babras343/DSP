@@ -13,3 +13,7 @@ table = client.query(query=query, database="InfluxDB_RD", language='sql')
 df = table.to_pandas().sort_values(by="time")
 print(df)
 
+## And this one tooo...
+
+
+HAHHas
