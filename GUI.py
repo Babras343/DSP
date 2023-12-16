@@ -1,3 +1,4 @@
+# GUI.py
 import tkinter as tk
 from PIL import Image, ImageTk
 
@@ -13,38 +14,40 @@ class SpeedRotationGUI:
         self.rotation_label = tk.Label(master, text="Rotation:")
         self.rotation_label.grid(row=1, column=0, padx=10, pady=10)
 
-        # Create labels to display the detected values
-        self.speed_value = tk.StringVar()
-        self.speed_display = tk.Label(master, textvariable=self.speed_value)
-        self.speed_display.grid(row=0, column=1, padx=10, pady=10)
+        # Create a canvas for the traffic light
+        self.traffic_light_canvas = tk.Canvas(master, width=30, height=70)
+        self.traffic_light_canvas.grid(row=0, column=1, padx=10, pady=10)
 
-        self.rotation_value = tk.StringVar()
-        self.rotation_display = tk.Label(master, textvariable=self.rotation_value)
-        self.rotation_display.grid(row=1, column=1, padx=10, pady=10)
+        # Create arrows for rotation
+        self.left_arrow = tk.Label(master, text="←")
+        self.left_arrow.grid(row=1, column=1, padx=10, pady=10)
 
-        # Create an image placeholder for a visualization (you can replace this with your actual visualization)
-        self.image_path = "placeholder_image.png"
-        self.image = ImageTk.PhotoImage(Image.open(self.image_path))
-        self.image_label = tk.Label(master, image=self.image)
-        self.image_label.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+        self.right_arrow = tk.Label(master, text="→")
+        self.right_arrow.grid(row=1, column=2, padx=10, pady=10)
 
     def update_values(self, speed, rotation):
-        # Update the displayed values
-        self.speed_value.set(speed)
-        self.rotation_value.set(rotation)
+        # Update the displayed values for speed
+        self.speed_label.config(text=f"Speed: {speed}")
 
-        # Update the image (replace this with the actual visualization)
-        new_image = ImageTk.PhotoImage(Image.open(self.image_path))
-        self.image_label.configure(image=new_image)
-        self.image_label.image = new_image
+        # Update the traffic light based on speed
+        self.traffic_light_canvas.delete("all")  # Clear previous drawing
+        if speed == "Fast":
+            self.traffic_light_canvas.create_oval(5, 5, 25, 25, fill='red')
+        elif speed == "Slow":
+            self.traffic_light_canvas.create_oval(5, 35, 25, 55, fill='yellow')
+        elif speed == "Stopped":
+            self.traffic_light_canvas.create_oval(5, 65, 25, 85, fill='green')
 
-if __name__ == "__main__":
+        # Update the arrows based on rotation
+        if rotation == "Left":
+            self.left_arrow.config(fg='blue')  # Change color or style as needed
+            self.right_arrow.config(fg='black')
+        elif rotation == "Right":
+            self.left_arrow.config(fg='black')
+            self.right_arrow.config(fg='blue')  # Change color or style as needed
+
+
+async def run_GUI():
     root = tk.Tk()
     gui = SpeedRotationGUI(root)
-
-    # Example: Update GUI with detected values
-    detected_speed = "Fast"
-    detected_rotation = "Right"
-    gui.update_values(detected_speed, detected_rotation)
-
     root.mainloop()
