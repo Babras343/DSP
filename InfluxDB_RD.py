@@ -24,3 +24,6 @@ def send_to_influxdb(data):
         print("Data sent to InfluxDB succesfully.")
     except Exception as e:
         print(f"Error sending data to InfluxDB: {e}")
+
+
+        ### New text written 22(23.3)
